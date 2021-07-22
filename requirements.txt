@@ -26,4 +26,5 @@ Werkzeug==0.16.1
 flask-restx==0.2.0
 grpcio==1.38.1
 protobuf==3.17.3
+kafka-python==2.0.2
 
