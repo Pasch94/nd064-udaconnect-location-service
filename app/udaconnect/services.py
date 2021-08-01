@@ -8,7 +8,7 @@ import grpc
 import app.udaconnect.proto.location_pb2 as loc_pb2
 import app.udaconnect.proto.location_pb2_grpc as loc_pb2_grpc
 
-from app import db
+from app import db, app
 from .models import Location
 from .schemas import LocationSchema
 from geoalchemy2.functions import ST_AsText, ST_Point
@@ -22,11 +22,12 @@ logger = logging.getLogger("location-service")
 class LocationService(loc_pb2_grpc.LocationServiceServicer):
 
     def retrieve(self, location_id) -> Location:
-        location, coord_text = (
-            db.session.query(Location, Location.coordinate.ST_AsText())
-            .filter(Location.id == location_id)
-            .one()
-        )
+        with app.app_context():
+            location, coord_text = (
+                db.session.query(Location, Location.coordinate.ST_AsText())
+                .filter(Location.id == location_id)
+                .one()
+            )
 
         # Rely on database to return text form of point to reduce overhead of conversion in app code
         location.wkt_shape = coord_text

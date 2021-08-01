@@ -3,13 +3,18 @@
 // python3 -m grpc_tools.protoc -I./ --python_out=./ --grpc_python_out=./ location.proto
 syntax = "proto3";
 
+message Coordinate {
+  int32 id = 1;
+  string longitude = 2;
+  string latitude = 3;
+}
+
 message Location {
   
   int32 id = 1;
   int32 person_id = 2;
-  string longitude = 3;
-  string latitude = 4;
-  string creation_time = 5;
+  Coordinate coordinate = 3;
+  string creation_time = 4;
 
 }
 
