@@ -34,8 +34,8 @@ class LocationService(loc_pb2_grpc.LocationServiceServicer):
         return loc_pb2.Location(id=location_id,
                                 person_id=location.person_id,
                                 creation_time=datetime.timestamp(location.creation_time),
-                                longitude=location.longitude,
-                                latitude=location.latitude)
+                                longitude=float(location.longitude),
+                                latitude=float(location.latitude))
 
     def create_from_kafka(self, location: Dict) -> Location:
         validation_results: Dict = LocationSchema().validate(location)
