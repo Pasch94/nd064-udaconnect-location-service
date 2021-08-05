@@ -1,10 +1,12 @@
 import logging
 import threading
+import json
+import grpc
+
 from datetime import datetime, timedelta
 from typing import Dict, List
 from concurrent.futures import ThreadPoolExecutor
 
-import grpc
 import app.udaconnect.proto.location_pb2 as loc_pb2
 import app.udaconnect.proto.location_pb2_grpc as loc_pb2_grpc
 
@@ -74,12 +76,16 @@ def setup_kafka_consumer(topic_name, server, port):
     consuming = True
     kafka_server = ':'.join([server, port])
     print('Connecting to kafka server {}'.format(kafka_server))
-    consumer = KafkaConsumer(topic_name, bootstrap_servers=[kafka_server], api_version=(2, 8, 0))
+    consumer = KafkaConsumer(
+            topic_name, 
+            bootstrap_servers=[kafka_server], 
+            api_version=(2, 8, 0),
+            message_deserializer=lambda m: json.loads(m.decodde('utf-8')))
 
     def consume(consumer):
         while consuming:
-            messages = consumer.poll()
             for message in messages:
+                message = message.value
                 LocationService().create_from_kafka(message)
 
     # Thread does not stop
