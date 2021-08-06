@@ -80,7 +80,7 @@ def setup_kafka_consumer(topic_name, server, port):
             topic_name, 
             bootstrap_servers=[kafka_server], 
             api_version=(2, 8, 0),
-            message_deserializer=lambda m: json.loads(m.decodde('utf-8')))
+            message_deserializer=lambda m: json.loads(m.decode('utf-8')))
 
     def consume(consumer):
         while consuming:
