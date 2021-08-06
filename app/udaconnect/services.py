@@ -49,8 +49,11 @@ class LocationService(loc_pb2_grpc.LocationServiceServicer):
         new_location.person_id = location["person_id"]
         new_location.creation_time = location["creation_time"]
         new_location.coordinate = ST_Point(location["latitude"], location["longitude"])
-        db.session.add(new_location)
-        db.session.commit()
+
+        with app.app_context():
+            db.session.add(new_location)
+            db.session.commit()
+            logger.info("Added new location to database")
 
         return new_location
 
@@ -75,16 +78,16 @@ def setup_grpc_server(server_port):
 def setup_kafka_consumer(topic_name, server, port):
     consuming = True
     kafka_server = ':'.join([server, port])
-    print('Connecting to kafka server {}'.format(kafka_server))
+    logger.debug('Connecting to kafka server {}'.format(kafka_server))
     consumer = KafkaConsumer(
             topic_name, 
             bootstrap_servers=[kafka_server], 
             api_version=(2, 8, 0),
-            message_deserializer=lambda m: json.loads(m.decode('utf-8')))
+            value_deserializer=lambda m: json.loads(m.decode('utf-8')))
 
     def consume(consumer):
         while consuming:
-            for message in messages:
+            for message in consumer:
                 message = message.value
                 LocationService().create_from_kafka(message)
 
