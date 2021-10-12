@@ -3,7 +3,8 @@ import os
 from app.udaconnect.services import setup_grpc_server, setup_kafka_consumer
 
 def start_grpc_server():
-    SERVER_PORT = os.getenv('GRPC_PORT', '[::]:5005')
+    SERVER_PORT_IPV4 = os.getenv('GRPC_LOCATION_PORT', '5005')
+    SERVER_PORT = ':'.join(['[::]', SERVER_PORT_IPV4])
     setup_grpc_server(SERVER_PORT)
     print("gRPC Server setup..")
 
